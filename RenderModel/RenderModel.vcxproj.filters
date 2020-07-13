@@ -27,9 +27,6 @@
     <QtRcc Include="RenderModel.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtUic Include="RenderModel.ui">
-      <Filter>Resource Files</Filter>
-    </QtUic>
     <QtMoc Include="RenderModel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -44,10 +41,29 @@
     <ClCompile Include="RenderContent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RenderContent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="RenderModel.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="RenderWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>
