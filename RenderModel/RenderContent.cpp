@@ -57,43 +57,125 @@ void RenderContent::initDevice(int wHid, int width, int height)
 	IDXGIAdapter* selectedAdapter = NULL;
 	D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
 
-	DXGI_SWAP_CHAIN_DESC sd;
-	ZeroMemory(&sd, sizeof(sd));
-	sd.BufferDesc.Width = width;
-	sd.BufferDesc.Height = height;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 1;
-	sd.OutputWindow = (HWND)wHid;
-	sd.Windowed = TRUE;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
 	UINT deviceFlag = 0;// D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
 	deviceFlag |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(selectedAdapter, driverType,
-		0, deviceFlag, featureLevels, sizeofarray(featureLevels),
-		D3D11_SDK_VERSION, &sd,
-		&swapChain, &device, &featureLevel, &immediateContext);
-	if (FAILED(hr))
+
+	HRESULT hr = S_FALSE;
+	if (wHid > 0)
 	{
-		return;
+		DXGI_SWAP_CHAIN_DESC sd;
+		ZeroMemory(&sd, sizeof(sd));
+		sd.BufferDesc.Width = width;
+		sd.BufferDesc.Height = height;
+		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.BufferCount = 1;
+		sd.OutputWindow = (HWND)wHid;
+		sd.Windowed = TRUE;
+		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+		hr = D3D11CreateDeviceAndSwapChain(selectedAdapter, driverType,
+			0, deviceFlag, featureLevels, sizeofarray(featureLevels),
+			D3D11_SDK_VERSION, &sd,
+			&swapChain, &device, &featureLevel, &immediateContext);
+		if (FAILED(hr))
+		{
+			return;
+		}
+
+		ID3D11Texture2D* pBackBuffer = 0;
+		hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		if (FAILED(hr))
+			return;
+
+		hr = device->CreateRenderTargetView(pBackBuffer, NULL, &renderTargetView);
+		pBackBuffer->Release();
+		if (FAILED(hr))
+			return;
+	}
+	else
+	{
+		DXGI_SWAP_CHAIN_DESC sd;
+		ZeroMemory(&sd, sizeof(sd));
+		sd.BufferDesc.Width = width;
+		sd.BufferDesc.Height = height;
+		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.BufferCount = 1;
+		sd.OutputWindow = (HWND)wHid;
+		sd.Windowed = TRUE;
+		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+		hr = D3D11CreateDevice(selectedAdapter, driverType,
+			0, deviceFlag, featureLevels, sizeofarray(featureLevels),
+			D3D11_SDK_VERSION, /*&sd,
+			&swapChain,*/ &device, &featureLevel, &immediateContext);
+		if (FAILED(hr))
+		{
+			return;
+		}
+
+
+
+		ID3D11Texture2D* pBackBuffer = 0;
+// 		hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+// 		if (FAILED(hr))
+// 			return;
+
+		CD3D11_TEXTURE2D_DESC textureDesc;
+		textureDesc.Width = width;
+		textureDesc.Height = height;
+		textureDesc.MipLevels = 0;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.MiscFlags = 0;
+
+		hr = device->CreateTexture2D(&textureDesc, NULL, &pBackBuffer);
+		if (FAILED(hr))
+			return;
+
+		hr = device->CreateRenderTargetView(pBackBuffer, NULL, &renderTargetView);
+		pBackBuffer->Release();
+		if (FAILED(hr))
+			return;
+
+// 		ID3D11Texture2D* resTexture = 0;
+// 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+// 		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+// 		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+// 
+// 		hr = device->CreateTexture2D(&textureDesc, NULL, &resTexture);
+// 		if (FAILED(hr))
+// 			return;
+// 		CD3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+// 		viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+// 		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+// 		viewDesc.Texture2D.MostDetailedMip = 0;
+// 		viewDesc.Texture2D.MipLevels = -1;
+// 
+// 		ID3D11ShaderResourceView* resView = NULL;
+// 		hr = device->CreateShaderResourceView(resTexture,&viewDesc, &resView);
+// 		if (FAILED(hr))
+// 			return;
+// 		m_copyResView = resView;
 	}
 
-	ID3D11Texture2D* pBackBuffer = 0;
-	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	if (FAILED(hr))
-		return;
 
-	hr = device->CreateRenderTargetView(pBackBuffer, NULL, &renderTargetView);
-	pBackBuffer->Release();
-	if (FAILED(hr))
-		return;
 
 	D3D11_TEXTURE2D_DESC descDepth;
 	ZeroMemory(&descDepth, sizeof(descDepth));
@@ -206,11 +288,24 @@ void RenderContent::frameMove(std::uint64_t frameNumber, std::uint64_t elapsed)
 	g_pImmediateContext->OMSetBlendState(NULL, BlendFactor, 0xffffffff);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_UNDEFINED);
 
-	//renderCube(10);
+	renderCube(10);
 	renderCube(21);
 	if (g_pSwapChain)
 	{
 		g_pSwapChain->Present(0, 0);
+	}
+	else
+	{
+		ID3D11RenderTargetView* ppRenderTargetViews = NULL;
+		ID3D11DepthStencilView* ppDepthStencilView = 0;
+		g_pImmediateContext->OMGetRenderTargets(1, &ppRenderTargetViews, &ppDepthStencilView);
+		ID3D11Resource* renderTarget = NULL;
+		ppRenderTargetViews->GetResource(&renderTarget);
+		if (renderTarget)
+		{
+			HRESULT rul = D3DX11SaveTextureToFile(g_pImmediateContext, renderTarget, D3DX11_IFF_PNG,"11copyTexture.png");
+			int a = 0;
+		}
 	}
 }
 

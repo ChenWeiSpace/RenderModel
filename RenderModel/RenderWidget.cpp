@@ -15,10 +15,17 @@ void RenderWidget::buildContent()
 	auto winId = this->winId();
 	QSize size = this->size();
 	RenderContentPtr rendCon = std::make_shared<RenderContent>();
+	winId = 0;//render to texture
 	rendCon->initDevice(winId, size.width(), size.height());
 	m_renderConten = rendCon;
-
-	this->startTimer(20);
+	if (winId  )
+	{
+		this->startTimer(20);
+	}
+	else
+	{
+		rendCon->frameMove(0, 0);
+	}
 }
 
 void RenderWidget::timerEvent(QTimerEvent *event)

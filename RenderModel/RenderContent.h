@@ -29,6 +29,8 @@ private:
 	ID3D11DepthStencilView* g_pDepthStencilView = { NULL };
 	RenderCameraPtr m_camera;
 
+	//copy texture
+	//ID3D11ShaderResourceView* m_copyResView{NULL};
 	//cube
 	ID3D11VertexShader*     g_pVertexShader{ NULL };
 	ID3D11InputLayout*      g_pVertexLayout{ NULL };
