@@ -304,7 +304,19 @@ void RenderContent::frameMove(std::uint64_t frameNumber, std::uint64_t elapsed)
 		if (renderTarget)
 		{
 			HRESULT rul = D3DX11SaveTextureToFile(g_pImmediateContext, renderTarget, D3DX11_IFF_PNG,"11copyTexture.png");
-			int a = 0;
+			LPD3D10BLOB blob;
+			rul = D3DX11SaveTextureToMemory(g_pImmediateContext, renderTarget,D3DX11_IFF_PNG, &blob,0);
+			if (rul == S_OK)
+			{
+				size_t st = blob->GetBufferSize();
+				void * arrs =	blob->GetBufferPointer();
+				m_targetBuffer = std::make_shared<BufferCon>();
+				m_targetBuffer->buff = new char[st];
+				m_targetBuffer->size = st;
+				memcpy(m_targetBuffer->buff, arrs, st);
+				blob->Release();
+				int a = 0;
+			}
 		}
 	}
 }

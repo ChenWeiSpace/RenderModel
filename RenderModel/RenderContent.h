@@ -6,6 +6,17 @@
 #include <d3dcompiler.h>
 typedef std::shared_ptr<class RenderCamera> RenderCameraPtr;
 
+struct BufferCon {
+	~BufferCon()
+	{
+		delete[] buff;
+	}
+	char * buff{nullptr};
+	size_t size{0};
+};
+typedef std::shared_ptr<BufferCon> BufferConPtr;
+
+
 class RenderContent : public std::enable_shared_from_this<RenderContent>
 {
 public:
@@ -14,6 +25,7 @@ public:
 	void initDevice(int wHid, int w,int h);
 
 	void frameMove(std::uint64_t frameNumber, std::uint64_t elapsed);
+	inline BufferConPtr getTargetBuffer() { return m_targetBuffer; }
 private:
 	void buildRenderCube();
 	void renderCube(float t);
@@ -38,6 +50,7 @@ private:
 	ID3D11Buffer*           g_pConstantBuffer{ NULL };
 	ID3D11Buffer*           g_pVertexBuffer{ NULL };
 	ID3D11Buffer*           g_pIndexBuffer{ NULL };
+	BufferConPtr m_targetBuffer;
 };
 typedef std::shared_ptr<RenderContent> RenderContentPtr;
 #endif // RenderContent_h__

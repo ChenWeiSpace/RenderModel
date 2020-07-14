@@ -17,10 +17,12 @@ public:
 	void buildContent();
 protected:
 	void timerEvent(QTimerEvent *event) override;
+	virtual void paintEvent(QPaintEvent *event);
 private:
 	RenderContentPtr m_renderConten;
 	std::uint64_t m_current{ 0 };
 	QTime m_time;
 	std::uint64_t m_pressTime{ 0 };
+	QImage m_image;
 };
 #endif // RenderWidget_h__

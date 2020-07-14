@@ -1,3 +1,4 @@
+#include <QtGui/QPainter>
 #include "RenderWidget.h"
 #include "RenderContent.h"
 
@@ -25,6 +26,10 @@ void RenderWidget::buildContent()
 	else
 	{
 		rendCon->frameMove(0, 0);
+		BufferConPtr buffCon = rendCon->getTargetBuffer();
+		m_image = QImage::fromData((uchar*)buffCon->buff, buffCon->size, "PNG");
+		bool val = m_image.isNull();
+		int a = 0;
 	}
 }
 
@@ -38,4 +43,15 @@ void RenderWidget::timerEvent(QTimerEvent *event)
 	}
 	m_renderConten->frameMove(frameNumber++, val - m_current);
 	m_current = val;
+}
+
+void RenderWidget::paintEvent(QPaintEvent *event)
+{
+	QWidget::paintEvent(event);
+	if (!m_image.isNull())
+	{
+		QPainter painter(this);
+		QRect rect(QPoint(0, 0), this->size());
+		painter.drawImage(rect, m_image);
+	}
 }
